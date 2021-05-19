@@ -13,7 +13,7 @@ public class HelloWorldController {
 
 	@GetMapping(path = "/hello-world")
 	public String helloWorld() {
-		return "Hello World";
+		return "Hello World - " + this.getIP();
 	}
 
 	@GetMapping(path = "/hello-world-bean")
@@ -28,26 +28,26 @@ public class HelloWorldController {
 		
 	@GetMapping(path = "/actuator/health")
 	public String healthBean() {
-		return "Hello World - Health";
+		return "Hello World - Health - " + this.getIP();
 	}
 		
 	@GetMapping(path = "/")
 	public String rootBean() {
-		return "Hello World - Health";
+		return "Hello World - Health - " + this.getIP();
 	}
 		
 	@GetMapping(path = "/resttemplate")
 	public String restTemplateBean() {
 		RestTemplate restTemplate= new RestTemplate();
-
 		String url = "https://w4fnt8whvj.execute-api.ap-northeast-1.amazonaws.com/dev/pets";
-        ResponseEntity<String> user = restTemplate.getForEntity(url, String.class);
-        HttpStatus statusCode = user.getStatusCode();
-        // System.out.println("status code - " + statusCode);
-        String userDetails = user.getBody();
-        return userDetails;
-        // System.out.println("response body - " + userDetails);
-        // HttpHeaders responseHeaders = user.getHeaders();
-        // System.out.println("response Headers - " + responseHeaders);
+		ResponseEntity<String> retVal = restTemplate.getForEntity(url, String.class);
+		return retVal.getBody();
+	}
+	
+	private String getIP() {
+		RestTemplate restTemplate= new RestTemplate();
+		String url = "http://169.254.169.254/latest/meta-data/local-ipv4";
+		ResponseEntity<String> retVal = restTemplate.getForEntity(url, String.class);
+		return retVal.getBody();
 	}
 }
