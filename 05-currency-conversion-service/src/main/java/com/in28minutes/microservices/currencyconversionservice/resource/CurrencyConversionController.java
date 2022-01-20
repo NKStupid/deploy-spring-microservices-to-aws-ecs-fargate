@@ -1,6 +1,7 @@
 package com.in28minutes.microservices.currencyconversionservice.resource;
 
 import java.math.BigDecimal;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,27 +28,36 @@ public class CurrencyConversionController {
 	@Value("${CURRENCY_EXCHANGE_URI:http://localhost:8000}")
 	private String currencyExchangeHost;
 
+	@Value("https://www.baidu.com")
+	private String baiduHost;
+
+
 	@Autowired
 	private RestTemplate restTemplate;
 
-	@GetMapping("/currency-converter/from/{from}/to/{to}/quantity/{quantity}")
-	public CurrencyConversionBean convertCurrency(@PathVariable String from, @PathVariable String to,
-			@PathVariable BigDecimal quantity) {
+	@GetMapping("/baidu")
+	public String baidu() {
 
-		LOGGER.info("Received Request to convert from {} {} to {} ", quantity, from, to);
+		LOGGER.info("Received Request to call baidu.com");
 
-		ResponseEntity<CurrencyConversionBean> responseEntity = restTemplate.getForEntity(
-				currencyExchangeHost + "/api/currency-exchange-microservice/currency-exchange/from/{from}/to/{to}",
-				CurrencyConversionBean.class, createUriVariables(from, to));
+		Object retVal = restTemplate.getForObject(baiduHost, String.class);
 
-		CurrencyConversionBean response = responseEntity.getBody();
+		LOGGER.info("Response " + retVal.toString());
 
-		BigDecimal convertedValue = quantity.multiply(response.getConversionMultiple());
+		return retVal.toString();
 
-		String conversionEnvironmentInfo = containerMetaDataService.retrieveContainerMetadataInfo();
-
-		return new CurrencyConversionBean(response.getId(), from, to, response.getConversionMultiple(), quantity,
-				convertedValue, response.getExchangeEnvironmentInfo(), conversionEnvironmentInfo);
+//		ResponseEntity<CurrencyConversionBean> responseEntity = restTemplate.getForEntity(
+//				currencyExchangeHost + "/api/currency-exchange-microservice/currency-exchange/from/{from}/to/{to}",
+//				CurrencyConversionBean.class, createUriVariables(from, to));
+//
+//		CurrencyConversionBean response = responseEntity.getBody();
+//
+//		BigDecimal convertedValue = quantity.multiply(response.getConversionMultiple());
+//
+//		String conversionEnvironmentInfo = containerMetaDataService.retrieveContainerMetadataInfo();
+//
+//		return new CurrencyConversionBean(response.getId(), from, to, response.getConversionMultiple(), quantity,
+//				convertedValue, response.getExchangeEnvironmentInfo(), conversionEnvironmentInfo);
 	}
 
 	private Map<String, String> createUriVariables(String from, String to) {
@@ -55,5 +65,12 @@ public class CurrencyConversionController {
 		uriVariables.put("from", from);
 		uriVariables.put("to", to);
 		return uriVariables;
+	}
+
+	@GetMapping("/hello")
+	public String helloWorldPathVariable() {
+		LOGGER.info("Received Request to");
+
+		return String.format("Hello World");
 	}
 }
